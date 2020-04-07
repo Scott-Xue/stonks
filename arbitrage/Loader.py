@@ -1,8 +1,9 @@
-'''Loads the given csv file into a usable Python object'''
+import csv
 
-class Loader(object):
-    '''class to contain data from path passed in to command line'''
-    def __init__(self, csv):
-        self.data = csv
+"""Reads the given csv file into a list of strings containing the names of the securities."""
 
+def load(file):
+    with open(file) as f:
+        reader = csv.reader(f)
+        return next(reader)
 
