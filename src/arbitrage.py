@@ -25,7 +25,8 @@ class Query (object):
             data = self.pull(name)
             expiry_dates = data.get_dates(name)
             underlying_cost = data.get_underlying(name)
-            diff_costs = data.get_diff_costs(name)
+            spot_prices = data.get_spot_prices(name)
+            diff_costs = [x - underlying_cost for x in spot_prices]
             if self.check(expiry_dates, diff_costs, underlying_cost):
                 print(name)
 
