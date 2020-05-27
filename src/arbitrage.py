@@ -6,15 +6,15 @@ class Query (object):
         self.api = api
 
     def pull(self, stock):
-        """Connects to API to pull data for a given stock"""
+        """Connects to API to pull data for a given stock and returns a StockData object."""
         return
 
-    def check(self, expiry_dates=None, diff_costs=None, underlying_cost=None):
+    def check(self, expiry_dates=None, strike_prices=None, underlying_cost=None):
         """Checks to see if there exists an expiry date for which
         the arbitrage formula for options holds"""
         result = False
         for expiry in expiry_dates:
-            diff_cost = diff_costs[expiry]
+            diff_cost = strike_prices[expiry][0] - strike_prices[expiry][1]
             if diff_cost / underlying_cost > self.limit:
                 result = True
         return result
@@ -25,15 +25,27 @@ class Query (object):
             data = self.pull(name)
             expiry_dates = data.get_dates(name)
             underlying_cost = data.get_underlying(name)
-            spot_prices = data.get_spot_prices(name)
-            diff_costs = [x - underlying_cost for x in spot_prices]
-            if self.check(expiry_dates, diff_costs, underlying_cost):
+            strike_prices = data.get_strike_prices(name)
+            if self.check(expiry_dates, strike_prices, underlying_cost):
                 print(name)
 
 class StockData(object):
     def __init__(self, name):
         self.name = name
 
+    def get_dates(self):
+        """Returns a list of expiry dates for put/call options"""
+        return None
+
+    def get_underlying(self):
+        """Returns the spot price of this security"""
+        return None
+
+    def get_strike_prices(self):
+        """Returns a dict mapping expiry dates to a tuple (call, put)
+        prices for at-the-money options"""
+        return None
+    
 class API(object):
     def __init__(self, args=None):
         self.name = args
