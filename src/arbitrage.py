@@ -14,7 +14,7 @@ class Query (object):
         the arbitrage formula for options holds"""
         result = False
         for expiry in expiry_dates:
-            diff_cost = strike_prices[expiry][0] - strike_prices[expiry][1]
+            diff_cost = abs(strike_prices[expiry][0] - strike_prices[expiry][1])
             if diff_cost / underlying_cost > self.limit:
                 result = True
         return result
@@ -23,12 +23,34 @@ class Query (object):
         """Prints the stocks that satisfy the arbitrage opportunity requirements"""
         for name in self.names:
             data = self.pull(name)
-            expiry_dates = data.get_dates(name)
-            underlying_cost = data.get_underlying(name)
-            strike_prices = data.get_strike_prices(name)
+            expiry_dates = data.get_dates()
+            underlying_cost = data.get_underlying()
+            strike_prices = data.get_strike_prices()
             if self.check(expiry_dates, strike_prices, underlying_cost):
                 print(name)
 
+class HistoricalQuery(Query):
+    def __init__(self, timeframe):
+        super().__init__()
+        self.timeframe = timeframe
+    
+    def pull(self, stock, time):
+        """Connects to a API to get historical data"""
+        return
+
+    def find_opportunities(self):
+        for i in range(len(self.timeframe)):
+            for j in range(i, len(self.timeframe)):
+                for name in self.names:
+                    underlying_time = self.timeframe[i]
+                    option_time = self.timeframe[j]
+                    underlying_cost = self.pull(name, underlying_time).get_underlying()
+                    option_data = self.pull(name, option_time)
+                    expiry_dates = option_data.get_dates()
+                    strike_prices = option_data.get_strike_prices()
+                    if self.check(expiry_dates, strike_prices, underlying_cost):
+                        print(name, underlying_time, option_time)
+            
 class StockData(object):
     def __init__(self, name):
         self.name = name
@@ -45,7 +67,7 @@ class StockData(object):
         """Returns a dict mapping expiry dates to a tuple (call, put)
         prices for at-the-money options"""
         return None
-    
+
 class API(object):
     def __init__(self, args=None):
         self.name = args
