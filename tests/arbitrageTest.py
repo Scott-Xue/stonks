@@ -1,12 +1,32 @@
 import json
+import io
 import unittest
+import unittest.mock
 from src import arbitrage
 
 
 class QueryTest(unittest.TestCase):
-    def test_something(self):
-        self.assertEqual(True, False)
+    def setUp(self):
+        self.dates = ["01/01/1990", "01/02/1990"]
+        self.spot = 10
+        self.option_prices = {"01/01/1990" : (15, 15), "01/02/1990" : (14, 15)}
+        self.stock = arbitrage.StockData("AAPL", self.dates, self.spot, self.option_prices)
+        self.data = {"AAPL" : self.stock}
+        self.names = ["AAPL"]
+        self.api = arbitrage.FakeAPI(self.data)
+        
+    def test_check(self):
+        q = arbitrage.Query(stock_names=self.names, api = self.api)
+        self.assertTrue(q.check(self.dates, self.option_prices, self.spot))
 
+    @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
+    def assert_stdout(self, q, expected_output, mock_stdout):
+        q.find_opportunities()
+        self.assertEqual(mock_stdout.getvalue(), expected_output)
+
+    def test_find_opportunities(self):
+        q = arbitrage.Query(stock_names=self.names, api = self.api)
+        self.assert_stdout(q, "AAPL\n")
 
 class StockDataTest(unittest.TestCase):
     def setUp(self):
@@ -18,10 +38,7 @@ class APITest(unittest.TestCase):
         self.api = arbitrage.API()
 
     def test_get_option_expirations(self):
-        option_expirations = self.api.get_option_expirations()
-        with open("optionchain.json") as file:
-            data = json.load(file)
-        self.assertEqual(option_expirations, data)
+        pass
 
     def test_get_option_chain(self):
         pass

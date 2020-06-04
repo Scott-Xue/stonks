@@ -5,5 +5,9 @@ import arbitrage
 if __name__ == '__main__':
     filename = sys.argv[1]
     tickers = loader.load(filename)
-    query = arbitrage.Query(tickers)
-    query.find_opportunities()
+    if len(sys.argv) > 2:
+        timeframe = sys.argv[2]
+        hquery = arbitrage.HistoricalQuery(tickers, timeframe)
+    else:
+        query = arbitrage.Query(tickers)
+        query.find_opportunities()
