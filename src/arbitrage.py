@@ -30,12 +30,13 @@ class Query (object):
             if self.check(expiry_dates, option_prices, underlying_cost):
                 buffer.append(name)
         return buffer
-        
+
+
 class HistoricalQuery(Query):
-    def __init__(self, timeframe, limit=0, stock_names = None, api = None):
+    def __init__(self, timeframe, limit=0, stock_names=None, api=None):
         super().__init__(limit, stock_names, api)
         self.timeframe = timeframe
-    
+
     def pull(self, stock, time):
         """Connects to a API to get historical data"""
         return
@@ -52,13 +53,15 @@ class HistoricalQuery(Query):
                     option_prices = option_data.get_option_prices()
                     if self.check(expiry_dates, option_prices, underlying_cost):
                         print(name, underlying_time, option_time)
-            
+
+
 class StockData(object):
     def __init__(self, name, dates, spot, option_prices):
         self.name = name
         self.dates = dates
         self.spot = spot
         self.option_prices = option_prices
+
     def get_dates(self):
         """Returns a list of expiry dates for put/call options"""
         return self.dates
@@ -72,13 +75,15 @@ class StockData(object):
         prices for at-the-money options"""
         return self.option_prices
 
+
 class API(object):
     def __init__(self, args=None):
         self.name = args
 
+
 class FakeAPI(API):
     def __init__(self, data):
         self.data = data
-    
+
     def get(self, name):
         return self.data[name]
