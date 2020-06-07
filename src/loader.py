@@ -3,7 +3,6 @@
 import csv
 import os
 
-
 def load(file):
     assert os.path.isfile(file)
     with open(file) as f:
