@@ -21,14 +21,16 @@ class Query (object):
 
     def find_opportunities(self):
         """Prints the stocks that satisfy the arbitrage opportunity requirements"""
+        buffer = []
         for name in self.names:
             data = self.pull(name)
             expiry_dates = data.get_dates()
             underlying_cost = data.get_underlying()
             option_prices = data.get_option_prices()
             if self.check(expiry_dates, option_prices, underlying_cost):
-                print(name)
-
+                buffer.append(name)
+        return buffer
+        
 class HistoricalQuery(Query):
     def __init__(self, timeframe, limit=0, stock_names = None, api = None):
         super().__init__(limit, stock_names, api)

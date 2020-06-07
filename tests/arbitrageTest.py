@@ -19,14 +19,10 @@ class QueryTest(unittest.TestCase):
         q = arbitrage.Query(stock_names=self.names, api = self.api)
         self.assertTrue(q.check(self.dates, self.option_prices, self.spot))
 
-    @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
-    def assert_stdout(self, q, expected_output, mock_stdout):
-        q.find_opportunities()
-        self.assertEqual(mock_stdout.getvalue(), expected_output)
-
     def test_find_opportunities(self):
         q = arbitrage.Query(stock_names=self.names, api = self.api)
-        self.assert_stdout(q, "AAPL\n")
+        result = q.find_opportunities()
+        self.assertListEqual(result, ["AAPL"])
 
 class StockDataTest(unittest.TestCase):
     def setUp(self):
