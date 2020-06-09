@@ -14,5 +14,6 @@ class loaderTest(unittest.TestCase):
         self.assertRaises(AssertionError,
                           lambda: loader.load(parent_dir + 'nosuchfile'))
 
+
 if __name__ == '__main__':
     unittest.main()
