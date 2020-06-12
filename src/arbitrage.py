@@ -1,4 +1,6 @@
 import requests
+
+
 class Query (object):
 
     def __init__(self, limit=0, stock_names=None, api=None):
@@ -80,7 +82,7 @@ class StockData(object):
 class API(object):
     def __init__(self, args=None):
         self.name = args
-        
+
     def get(self, stock):
         exps = self.get_expiries(stock)
         spot = self.get_spot_price(stock)
@@ -92,16 +94,16 @@ class API(object):
     def get_expiries(self, stock):
         if self.name == "tradier":
             option_expiries = requests.get('https://sandbox.tradier.com/v1/markets/options/expirations',
-                params={'symbol':stock, 'includeAllRoots': 'true', 'strikes': 'false'},
+                    params={'symbol': stock, 'includeAllRoots': 'true', 'strikes': 'false'},
                 headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
             )
             expiries = option_expiries.json()
             return expiries['expirations']['date']
-    
+
     def get_spot_price(self, stock):
         if self.name == "tradier":
             response = requests.get('https://sandbox.tradier.com/v1/markets/quotes',
-                params={'symbols': stock, 'greeks': 'false'},
+                    params={'symbols': stock, 'greeks': 'false'},
                 headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
             )
             quote = response.json()
@@ -111,7 +113,7 @@ class API(object):
         if self.name == "tradier":
             result = [0]*2
             response = requests.get('https://sandbox.tradier.com/v1/markets/options/chains',
-                params={'symbol': stock, 'expiration': expiry, 'greeks': 'false'},
+                    params={'symbol': stock, 'expiration': expiry, 'greeks': 'false'},
                 headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
             )
             options = response.json()['options']['option']
@@ -122,6 +124,7 @@ class API(object):
                     else:
                         result[1] = op["ask"]
             return tuple(result)
+
 
 class FakeAPI(API):
     def __init__(self, data):
