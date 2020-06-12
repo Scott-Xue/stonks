@@ -1,6 +1,7 @@
 import unittest
 import unittest.mock
 from src import arbitrage
+import requests
 
 
 class QueryTest(unittest.TestCase):
@@ -30,16 +31,31 @@ class StockDataTest(unittest.TestCase):
 
 class APITest(unittest.TestCase):
     def setUp(self):
-        self.api = arbitrage.API()
+        self.api = arbitrage.API("tradier")
 
-    def test_get_option_expirations(self):
-        pass
+    def test_response(self):
+        r = requests.get('https://sandbox.tradier.com/v1/markets/options/expirations',
+                params={'symbol':"VXX", 'includeAllRoots': 'true', 'strikes': 'false'},
+                headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
+            )
+        self.assertTrue(r.ok)
+        data = r.json()
+        dates = data["expirations"]["date"]
+        self.assertTrue(type(dates) == type([0]*3))
+        s = requests.get('https://sandbox.tradier.com/v1/markets/quotes',
+                params={'symbols': "AAPL", 'greeks': 'false'},
+                headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
+            )
+        self.assertTrue(s.ok)
+        self.assertTrue(type(s.json()["quotes"]["quote"]["ask"]) == float)
+        t = requests.get('https://sandbox.tradier.com/v1/markets/options/chains',
+                params={'symbol': "VXX", 'expiration': dates[0], 'greeks': 'false'},
+                headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
+            )
+        self.assertTrue(t.ok)
+        ops = t.json()['options']['option']
+        self.assertTrue(type(ops) == type([0]*3))
 
-    def test_get_option_chain(self):
-        pass
-
-    def test_doesnt_exist(self):
-        pass
 
 
 if __name__ == '__main__':
