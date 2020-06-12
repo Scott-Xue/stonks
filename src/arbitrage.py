@@ -94,18 +94,18 @@ class API(object):
     def get_expiries(self, stock):
         if self.name == "tradier":
             option_expiries = requests.get('https://sandbox.tradier.com/v1/markets/options/expirations',
-                    params={'symbol': stock, 'includeAllRoots': 'true', 'strikes': 'false'},
-                headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
-            )
+                                           params={'symbol': stock, 'includeAllRoots': 'true', 'strikes': 'false'},
+                                           headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA',
+                                                    'Accept': 'application/json'})
             expiries = option_expiries.json()
             return expiries['expirations']['date']
 
     def get_spot_price(self, stock):
         if self.name == "tradier":
             response = requests.get('https://sandbox.tradier.com/v1/markets/quotes',
-                    params={'symbols': stock, 'greeks': 'false'},
-                headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
-            )
+                                    params={'symbols': stock, 'greeks': 'false'},
+                                    headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA',
+                                             'Accept': 'application/json'})
             quote = response.json()
             return quote["quotes"]['quote']["ask"]
 
@@ -113,9 +113,9 @@ class API(object):
         if self.name == "tradier":
             result = [0]*2
             response = requests.get('https://sandbox.tradier.com/v1/markets/options/chains',
-                    params={'symbol': stock, 'expiration': expiry, 'greeks': 'false'},
-                headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
-            )
+                                    params={'symbol': stock, 'expiration': expiry, 'greeks': 'false'},
+                                    headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA',
+                                             'Accept': 'application/json'})
             options = response.json()['options']['option']
             for op in options:
                 if op["strike"] == stock_price:

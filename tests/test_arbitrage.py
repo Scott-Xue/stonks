@@ -35,23 +35,20 @@ class APITest(unittest.TestCase):
 
     def test_response(self):
         r = requests.get('https://sandbox.tradier.com/v1/markets/options/expirations',
-                    params={'symbol': "VXX", 'includeAllRoots': 'true', 'strikes': 'false'},
-                headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
-            )
+                         params={'symbol': "VXX", 'includeAllRoots': 'true', 'strikes': 'false'},
+                         headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'})
         self.assertTrue(r.ok)
         data = r.json()
         dates = data["expirations"]["date"]
         self.assertTrue(isinstance(dates, list))
         s = requests.get('https://sandbox.tradier.com/v1/markets/quotes',
-                    params={'symbols': "AAPL", 'greeks': 'false'},
-                headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
-            )
+                         params={'symbols': "AAPL", 'greeks': 'false'},
+                         headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'})
         self.assertTrue(s.ok)
         self.assertTrue(type(s.json()["quotes"]["quote"]["ask"]) == float)
         t = requests.get('https://sandbox.tradier.com/v1/markets/options/chains',
-                    params={'symbol': "VXX", 'expiration': dates[0], 'greeks': 'false'},
-                headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
-            )
+                         params={'symbol': "VXX", 'expiration': dates[0], 'greeks': 'false'},
+                         headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'})
         self.assertTrue(t.ok)
         ops = t.json()['options']['option']
         self.assertTrue(isinstance(ops, list))
