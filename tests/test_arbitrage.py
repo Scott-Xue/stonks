@@ -1,14 +1,13 @@
 import unittest
 import unittest.mock
 from src import arbitrage
-import requests
 
 
 class QueryTest(unittest.TestCase):
     def setUp(self):
         self.dates = ["01/01/1990", "01/02/1990"]
         self.spot = 10
-        self.option_prices = {"01/01/1990": (15, 15), "01/02/1990": (14, 15)}
+        self.option_prices = {"01/01/1990": {"call": 15, "put": 15}, "01/02/1990": {"call": 14, "put": 15}}
         self.stock = arbitrage.StockData("AAPL", self.dates, self.spot, self.option_prices)
         self.data = {"AAPL": self.stock}
         self.names = ["AAPL"]
@@ -29,29 +28,25 @@ class StockDataTest(unittest.TestCase):
         return None
 
 
-class APITest(unittest.TestCase):
+class TradierAPITest(unittest.TestCase):
     def setUp(self):
-        self.api = arbitrage.API("tradier")
+        self.api = arbitrage.TradierAPI()
+        self.expiries = self.api.get_expiries("VXX")
+        self.spot = self.api.get_spot_price("AAPL")
 
-    def test_response(self):
-        r = requests.get('https://sandbox.tradier.com/v1/markets/options/expirations',
-                         params={'symbol': "VXX", 'includeAllRoots': 'true', 'strikes': 'false'},
-                         headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'})
-        self.assertTrue(r.ok)
-        data = r.json()
-        dates = data["expirations"]["date"]
-        self.assertTrue(isinstance(dates, list))
-        s = requests.get('https://sandbox.tradier.com/v1/markets/quotes',
-                         params={'symbols': "AAPL", 'greeks': 'false'},
-                         headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'})
-        self.assertTrue(s.ok)
-        self.assertTrue(type(s.json()["quotes"]["quote"]["ask"]) == float)
-        t = requests.get('https://sandbox.tradier.com/v1/markets/options/chains',
-                         params={'symbol': "VXX", 'expiration': dates[0], 'greeks': 'false'},
-                         headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'})
-        self.assertTrue(t.ok)
-        ops = t.json()['options']['option']
-        self.assertTrue(isinstance(ops, list))
+    def test_get_expiries(self):
+        self.assertTrue(isinstance(self.expiries, list))
+
+    def test_get_spot_price(self):
+        self.assertTrue(isinstance(self.spot, float))
+
+    def test_get_option_premiums(self):
+        curr = self.api.get_option_premiums("VXX", self.expiries[0], self.spot)
+        self.assertTrue(isinstance(curr, dict))
+
+    def test_get_stock_data(self):
+        stock = self.api.get_stock_data("VXX")
+        self.assertTrue(isinstance(stock, arbitrage.StockData))
 
 
 if __name__ == '__main__':

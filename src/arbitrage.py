@@ -10,14 +10,14 @@ class Query (object):
 
     def pull(self, stock_name):
         """Connects to API to pull data for a given stock and returns a StockData object."""
-        return self.api.get(stock_name)
+        return self.api.get_stock_data(stock_name)
 
     def check(self, expiry_dates=None, option_prices=None, underlying_cost=None):
         """Checks to see if there exists an expiry date for which
         the arbitrage formula for options holds"""
         result = False
         for expiry in expiry_dates:
-            diff_cost = abs(option_prices[expiry][0] - option_prices[expiry][1])
+            diff_cost = abs(option_prices[expiry]["call"] - option_prices[expiry]["put"])
             if diff_cost / underlying_cost > self.limit:
                 result = True
         return result
@@ -74,8 +74,8 @@ class StockData(object):
         return self.spot
 
     def get_option_prices(self):
-        """Returns a dict mapping expiry dates to a tuple (call, put)
-        prices for at-the-money options"""
+        """Returns a dict mapping expiry dates to
+        {"call": call_price, "put": put_price}"""
         return self.option_prices
 
 
@@ -83,7 +83,7 @@ class API(object):
     def __init__(self, args=None):
         self.name = args
 
-    def get(self, stock):
+    def get_stock_data(self, stock):
         exps = self.get_expiries(stock)
         spot = self.get_spot_price(stock)
         premiums = {}
@@ -92,43 +92,55 @@ class API(object):
         return StockData(stock, exps, spot, premiums)
 
     def get_expiries(self, stock):
-        if self.name == "tradier":
-            option_expiries = requests.get('https://sandbox.tradier.com/v1/markets/options/expirations',
-                                           params={'symbol': stock, 'includeAllRoots': 'true', 'strikes': 'false'},
-                                           headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA',
-                                                    'Accept': 'application/json'})
-            expiries = option_expiries.json()
-            return expiries['expirations']['date']
+        return
 
     def get_spot_price(self, stock):
-        if self.name == "tradier":
-            response = requests.get('https://sandbox.tradier.com/v1/markets/quotes',
-                                    params={'symbols': stock, 'greeks': 'false'},
-                                    headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA',
-                                             'Accept': 'application/json'})
-            quote = response.json()
-            return quote["quotes"]['quote']["ask"]
+        return
 
     def get_option_premiums(self, stock, expiry, stock_price):
-        if self.name == "tradier":
-            result = [0]*2
-            response = requests.get('https://sandbox.tradier.com/v1/markets/options/chains',
-                                    params={'symbol': stock, 'expiration': expiry, 'greeks': 'false'},
-                                    headers={'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA',
-                                             'Accept': 'application/json'})
-            options = response.json()['options']['option']
-            for op in options:
-                if op["strike"] == stock_price:
-                    if op["option_type"] == "call":
-                        result[0] = op["ask"]
-                    else:
-                        result[1] = op["ask"]
-            return tuple(result)
+        return
+
+
+class TradierAPI(API):
+    def __init__(self):
+        self.headers = {'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
+        self.endpoint = 'https://sandbox.tradier.com/v1/markets'
+
+    def get_expiries(self, stock):
+        option_expiries = requests.get(self.endpoint + '/options/expirations',
+                                       params={'symbol': stock, 'includeAllRoots': 'true', 'strikes': 'false'},
+                                       headers=self.headers)
+        expiries = option_expiries.json()
+        return expiries['expirations']['date']
+
+    def get_spot_price(self, stock):
+        response = requests.get(self.endpoint + '/quotes',
+                                params={'symbols': stock, 'greeks': 'false'},
+                                headers=self.headers)
+        quote = response.json()
+        return quote["quotes"]['quote']["ask"]
+
+    def get_option_premiums(self, stock, expiry, stock_price):
+        result = {}
+        response = requests.get(self.endpoint + '/options/chains',
+                                params={'symbol': stock, 'expiration': expiry, 'greeks': 'false'},
+                                headers=self.headers)
+        options = response.json()['options']['option']
+        min_diff_call, min_diff_put = float('inf'), float('inf')
+        for op in options:
+            diff = abs(op["strike"] - stock_price)
+            if op["option_type"] == "call" and diff < min_diff_call:
+                result["call"] = op["ask"]
+                min_diff_call = diff
+            if op["option_type"] == "put" and diff < min_diff_put:
+                result["put"] = op["ask"]
+                min_diff_put = diff
+        return result
 
 
 class FakeAPI(API):
     def __init__(self, data):
         self.data = data
 
-    def get(self, name):
+    def get_stock_data(self, name):
         return self.data[name]
