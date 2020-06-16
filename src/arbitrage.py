@@ -105,7 +105,7 @@ class API(object):
 
 class TradierAPI(API):
     def __init__(self):
-        #TODO(scott-xue): implement reading in auth token from a config file
+        # TODO(scott-xue): implement reading in auth token from a config file
         self.headers = {'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
         self.endpoint = 'https://sandbox.tradier.com/v1/markets'
 
