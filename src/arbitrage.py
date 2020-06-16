@@ -88,7 +88,9 @@ class API(object):
         spot = self.get_spot_price(stock)
         premiums = {}
         for exp in exps:
-            premiums[exp] = self.get_option_premiums(stock, exp, spot)
+            prem = self.get_option_premiums(stock, exp, spot)
+            if prem:
+                premiums[exp] = prem
         return StockData(stock, exps, spot, premiums)
 
     def get_expiries(self, stock):
@@ -103,6 +105,7 @@ class API(object):
 
 class TradierAPI(API):
     def __init__(self):
+        #TODO(scott-xue): implement reading in auth token from a config file
         self.headers = {'Authorization': 'Bearer Bfo8MwBCA6lFOqWSdWIe1Ke7IigA', 'Accept': 'application/json'}
         self.endpoint = 'https://sandbox.tradier.com/v1/markets'
 
@@ -121,21 +124,25 @@ class TradierAPI(API):
         return quote["quotes"]['quote']["ask"]
 
     def get_option_premiums(self, stock, expiry, stock_price):
+        """Returns a dict {"call": call_price, "put": put_price}
+        if the difference in prices is greater than the difference between strike and spot or None otherwise"""
         result = {}
         response = requests.get(self.endpoint + '/options/chains',
                                 params={'symbol': stock, 'expiration': expiry, 'greeks': 'false'},
                                 headers=self.headers)
         options = response.json()['options']['option']
-        min_diff_call, min_diff_put = float('inf'), float('inf')
+        strikes = [op["strike"] for op in options]
+        closest_strike = min(strikes, key=lambda x: abs(x - stock_price))
+        margin = abs(closest_strike - stock_price)
         for op in options:
-            diff = abs(op["strike"] - stock_price)
-            if op["option_type"] == "call" and diff < min_diff_call:
+            if op["option_type"] == "call" and op["strike"] == closest_strike:
                 result["call"] = op["ask"]
-                min_diff_call = diff
-            if op["option_type"] == "put" and diff < min_diff_put:
+            if op["option_type"] == "put" and op["strike"] == closest_strike:
                 result["put"] = op["ask"]
-                min_diff_put = diff
-        return result
+        if abs(result["call"] - result["put"]) >= margin:
+            return result
+        else:
+            return None
 
 
 class FakeAPI(API):

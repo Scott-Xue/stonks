@@ -32,7 +32,7 @@ class TradierAPITest(unittest.TestCase):
     def setUp(self):
         self.api = arbitrage.TradierAPI()
         self.expiries = self.api.get_expiries("VXX")
-        self.spot = self.api.get_spot_price("AAPL")
+        self.spot = self.api.get_spot_price("VXX")
 
     def test_get_expiries(self):
         self.assertTrue(isinstance(self.expiries, list))
