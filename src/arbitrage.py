@@ -130,14 +130,19 @@ class TradierAPI(API):
                                 params={'symbol': stock, 'expiration': expiry, 'greeks': 'false'},
                                 headers=self.headers)
         options = response.json()['options']['option']
-        strikes = [op["strike"] for op in options]
-        closest_strike = min(strikes, key=lambda x: abs(x - stock_price))
+        best_diff = float("inf")
+        best_strike = float("inf")
         for op in options:
-            if op["option_type"] == "call" and op["strike"] == closest_strike:
+            diff = abs(op["strike"] - stock_price)
+            if op["option_type"] == "call" and diff <= best_diff:
+                best_diff = diff
+                best_strike = op["strike"]
                 result["call"] = op["ask"]
-            if op["option_type"] == "put" and op["strike"] == closest_strike:
+            if op["option_type"] == "put" and diff <= best_diff:
+                best_diff = diff
+                best_strike = op["strike"]
                 result["put"] = op["ask"]
-        result["strike"] = closest_strike
+        result["strike"] = best_strike
         return result
 
 
