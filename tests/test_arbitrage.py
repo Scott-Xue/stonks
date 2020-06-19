@@ -7,7 +7,8 @@ class QueryTest(unittest.TestCase):
     def setUp(self):
         self.dates = ["01/01/1990", "01/02/1990"]
         self.spot = 10
-        self.option_prices = {"01/01/1990": {"call": 15, "put": 15}, "01/02/1990": {"call": 14, "put": 15}}
+        self.option_prices = {"01/01/1990": {"call": 15, "put": 15, "strike": 10},
+                              "01/02/1990": {"call": 14, "put": 15, "strike": 10}}
         self.stock = arbitrage.StockData("AAPL", self.dates, self.spot, self.option_prices)
         self.data = {"AAPL": self.stock}
         self.names = ["AAPL"]

@@ -17,8 +17,9 @@ class Query (object):
         the arbitrage formula for options holds"""
         result = False
         for expiry in expiry_dates:
+            margin = abs(option_prices[expiry]["strike"] - underlying_cost)
             diff_cost = abs(option_prices[expiry]["call"] - option_prices[expiry]["put"])
-            if diff_cost / underlying_cost > self.limit:
+            if diff_cost / underlying_cost > self.limit and diff_cost > margin:
                 result = True
         return result
 
@@ -75,7 +76,7 @@ class StockData(object):
 
     def get_option_prices(self):
         """Returns a dict mapping expiry dates to
-        {"call": call_price, "put": put_price}"""
+        {"call": call_price, "put": put_price, "strike": strike_price}"""
         return self.option_prices
 
 
@@ -89,8 +90,7 @@ class API(object):
         premiums = {}
         for exp in exps:
             prem = self.get_option_premiums(stock, exp, spot)
-            if prem:
-                premiums[exp] = prem
+            premiums[exp] = prem
         return StockData(stock, exps, spot, premiums)
 
     def get_expiries(self, stock):
@@ -124,8 +124,7 @@ class TradierAPI(API):
         return quote["quotes"]['quote']["ask"]
 
     def get_option_premiums(self, stock, expiry, stock_price):
-        """Returns a dict {"call": call_price, "put": put_price}
-        if the difference in prices is greater than the difference between strike and spot or None otherwise"""
+        """Returns a dict {"call": call_price, "put": put_price, "strike": strike_price}"""
         result = {}
         response = requests.get(self.endpoint + '/options/chains',
                                 params={'symbol': stock, 'expiration': expiry, 'greeks': 'false'},
@@ -133,16 +132,13 @@ class TradierAPI(API):
         options = response.json()['options']['option']
         strikes = [op["strike"] for op in options]
         closest_strike = min(strikes, key=lambda x: abs(x - stock_price))
-        margin = abs(closest_strike - stock_price)
         for op in options:
             if op["option_type"] == "call" and op["strike"] == closest_strike:
                 result["call"] = op["ask"]
             if op["option_type"] == "put" and op["strike"] == closest_strike:
                 result["put"] = op["ask"]
-        if abs(result["call"] - result["put"]) >= margin:
-            return result
-        else:
-            return None
+        result["strike"] = closest_strike
+        return result
 
 
 class FakeAPI(API):
