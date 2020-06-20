@@ -17,9 +17,9 @@ class Query (object):
         the arbitrage formula for options holds"""
         result = False
         for expiry in expiry_dates:
-            margin = abs(option_prices[expiry]["strike"] - underlying_cost)
-            diff_cost = abs(option_prices[expiry]["call"] - option_prices[expiry]["put"])
-            if diff_cost / underlying_cost > self.limit and diff_cost > margin:
+            margin = underlying_cost - option_prices[expiry]["strike"]
+            diff_cost = option_prices[expiry]["call"] - option_prices[expiry]["put"]
+            if abs(diff_cost - margin) / underlying_cost > self.limit:
                 result = True
         return result
 

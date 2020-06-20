@@ -18,6 +18,14 @@ class QueryTest(unittest.TestCase):
         q = arbitrage.Query(stock_names=self.names, api=self.api)
         self.assertTrue(q.check(self.dates, self.option_prices, self.spot))
 
+    def test_check_false(self):
+        new_options = {"01/01/1990": {"call": 15, "put": 14, "strike": 9},
+                       "01/02/1990": {"call": 15, "put": 15, "strike": 10}}
+        new_data = arbitrage.StockData("VXX", self.dates, self.spot, new_options)
+        new_api = arbitrage.FakeAPI(new_data)
+        q = arbitrage.Query(stock_names=["VXX"], api=new_api)
+        self.assertFalse(q.check(self.dates, new_options, self.spot))
+
     def test_find_opportunities(self):
         q = arbitrage.Query(stock_names=self.names, api=self.api)
         result = q.find_opportunities()
