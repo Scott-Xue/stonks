@@ -10,4 +10,5 @@ if __name__ == '__main__':
         hquery = arbitrage.HistoricalQuery(tickers, timeframe)
     else:
         query = arbitrage.Query(tickers)
-        query.find_opportunities()
+        buffer = query.find_opportunities()
+        print(buffer)
