@@ -27,17 +27,34 @@ class QueryTest(unittest.TestCase):
         self.assertEqual(q.check(self.dates, new_options, self.spot), [])
 
     def test_check_all_scenarios(self):
-        spot1, spot2 = 9, 10
-        below_strike_big_put = {"01/02/1990": {"call": 4, "put": 5, "strike": 10}}
-        below_strike_big_call = {"01/02/1990": {"call": 5, "put": 4, "strike": 10}}
-        above_strike_big_put = {"01/02/1990": {"call": 4, "put": 5, "strike": 9}}
-        above_strike_big_call = {"01/02/1990": {"call": 5, "put": 4, "strike": 9}}
-        new_dates = ["01/02/1990"]
+        '''scenario_1a: strike > spot, put > call, no opportunities
+           scenario_1b: strike > spot, put > call, opportunities
+           scenario_2: strike > spot, put < call
+           scenario_3: strike < spot, put > call
+           scenario_4a: strike < spot, put < call, no opportunities
+           scenario_4b: strike < spot, put < call, opportunities'''
+        date = "01/02/1990"
+        new_dates = [date]
         q = arbitrage.Query(stock_names=["VXX"])
-        self.assertEqual(q.check(new_dates, below_strike_big_put, spot1), [])
-        self.assertNotEqual(q.check(new_dates, below_strike_big_call, spot1), [])
-        self.assertNotEqual(q.check(new_dates, above_strike_big_put, spot2), [])
-        self.assertEqual(q.check(new_dates, above_strike_big_call, spot2), [])
+        spot1, spot2 = 9, 10
+
+        scenario_1a = {date: {"call": 4, "put": 5, "strike": 10}}
+        self.assertEqual(q.check(new_dates, scenario_1a, spot1), [])
+
+        scenario_1b = {date: {"call": 4, "put": 5, "strike": 11}}
+        self.assertEqual(q.check(new_dates, scenario_1b, spot1), [(date, 1)])
+
+        scenario_2 = {date: {"call": 5, "put": 4, "strike": 10}}
+        self.assertEqual(q.check(new_dates, scenario_2, spot1), [(date, 2)])
+
+        scenario_3 = {date: {"call": 4, "put": 5, "strike": 9}}
+        self.assertEqual(q.check(new_dates, scenario_3, spot2), [(date, 2)])
+
+        scenario_4a = {date: {"call": 5, "put": 4, "strike": 9}}
+        self.assertEqual(q.check(new_dates, scenario_4a, spot2), [])
+
+        scenario_4b = {date: {"call": 5, "put": 4, "strike": 8}}
+        self.assertEqual(q.check(new_dates, scenario_4b, spot2), [(date, 1)])
 
     def test_find_opportunities(self):
         q = arbitrage.Query(stock_names=self.names, api=self.api)
