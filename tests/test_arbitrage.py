@@ -16,7 +16,7 @@ class QueryTest(unittest.TestCase):
 
     def test_check(self):
         q = arbitrage.Query(stock_names=self.names, api=self.api)
-        self.assertTrue(q.check(self.dates, self.option_prices, self.spot))
+        self.assertNotEqual(q.check(self.dates, self.option_prices, self.spot), [])
 
     def test_check_false(self):
         new_options = {"01/01/1990": {"call": 15, "put": 14, "strike": 9},
@@ -24,12 +24,25 @@ class QueryTest(unittest.TestCase):
         new_data = arbitrage.StockData("VXX", self.dates, self.spot, new_options)
         new_api = arbitrage.FakeAPI(new_data)
         q = arbitrage.Query(stock_names=["VXX"], api=new_api)
-        self.assertFalse(q.check(self.dates, new_options, self.spot))
+        self.assertEqual(q.check(self.dates, new_options, self.spot), [])
+
+    def test_check_all_scenarios(self):
+        spot1, spot2 = 9, 10
+        below_strike_big_put = {"01/02/1990": {"call": 4, "put": 5, "strike": 10}}
+        below_strike_big_call = {"01/02/1990": {"call": 5, "put": 4, "strike": 10}}
+        above_strike_big_put = {"01/02/1990": {"call": 4, "put": 5, "strike": 9}}
+        above_strike_big_call = {"01/02/1990": {"call": 5, "put": 4, "strike": 9}}
+        new_dates = ["01/02/1990"]
+        q = arbitrage.Query(stock_names=["VXX"])
+        self.assertEqual(q.check(new_dates, below_strike_big_put, spot1), [])
+        self.assertNotEqual(q.check(new_dates, below_strike_big_call, spot1), [])
+        self.assertNotEqual(q.check(new_dates, above_strike_big_put, spot2), [])
+        self.assertEqual(q.check(new_dates, above_strike_big_call, spot2), [])
 
     def test_find_opportunities(self):
         q = arbitrage.Query(stock_names=self.names, api=self.api)
         result = q.find_opportunities()
-        self.assertListEqual(result, ["AAPL"])
+        self.assertEqual(result[0][0], "AAPL")
 
 
 class StockDataTest(unittest.TestCase):

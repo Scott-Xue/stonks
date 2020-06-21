@@ -15,12 +15,12 @@ class Query (object):
     def check(self, expiry_dates=None, option_prices=None, underlying_cost=None):
         """Checks to see if there exists an expiry date for which
         the arbitrage formula for options holds"""
-        result = False
+        result = []
         for expiry in expiry_dates:
             margin = underlying_cost - option_prices[expiry]["strike"]
             diff_cost = option_prices[expiry]["call"] - option_prices[expiry]["put"]
             if abs(diff_cost - margin) / underlying_cost > self.limit:
-                result = True
+                result.append((expiry, abs(diff_cost - margin)))
         return result
 
     def find_opportunities(self):
@@ -31,8 +31,9 @@ class Query (object):
             expiry_dates = data.get_dates()
             underlying_cost = data.get_underlying()
             option_prices = data.get_option_prices()
-            if self.check(expiry_dates, option_prices, underlying_cost):
-                buffer.append(name)
+            checked = self.check(expiry_dates, option_prices, underlying_cost)
+            if checked:
+                buffer.append((name, checked))
         return buffer
 
 
