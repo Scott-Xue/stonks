@@ -6,7 +6,10 @@ class Query (object):
     def __init__(self, limit=0, stock_names=None, api=None):
         self.limit = limit
         self.names = stock_names
-        self.api = api
+        if api:
+            self.api = api
+        else:
+            self.api = TradierAPI()
 
     def pull(self, stock_name):
         """Connects to API to pull data for a given stock and returns a StockData object."""
