@@ -9,6 +9,6 @@ if __name__ == '__main__':
         timeframe = sys.argv[2]
         hquery = arbitrage.HistoricalQuery(tickers, timeframe)
     else:
-        query = arbitrage.Query(tickers)
+        query = arbitrage.Query(stock_names=tickers)
         buffer = query.find_opportunities()
         print(buffer)
