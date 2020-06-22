@@ -7,14 +7,12 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
     @app.route('/', methods=("GET", "POST"))
-    def hello_world():
-        if request.method == "POST":
-            ticker = request.form["ticker"]
-            if ticker:
-                q = arbitrage.Query(stock_names=[ticker])
-                opportunities = q.find_opportunities()
-                return str(opportunities)
-            else:
-                return "Enter a query"
+    def print_opportunities():
+        ticker = request.args.get('ticker')
+        if ticker:
+            q = arbitrage.Query(stock_names=[ticker])
+            opportunities = q.find_opportunities()
+            return str(opportunities)
         return render_template("base.html")
+
     return app
