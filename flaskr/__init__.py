@@ -11,7 +11,7 @@ def create_app(test_config=None):
         if request.method == "POST":
             ticker = request.form["ticker"]
             if ticker:
-                q = arbitrage.Query(stock_names=ticker)
+                q = arbitrage.Query(stock_names=[ticker])
                 opportunities = q.find_opportunities()
                 return str(opportunities)
             else:
