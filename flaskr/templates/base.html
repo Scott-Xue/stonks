@@ -5,10 +5,14 @@
 </head>
 <body>
 <h1>Calculate arbitrage opportunities</h1>
-<form method="GET">
     <label for="ticker">Stock Name:</label>
     <input type="text" id="ticker" name="ticker"><br><br>
-    <input type="submit" value="Submit">
-</form>
+        <input type="button" id = "Search" value="Search" onclick="goTo()">
+    <script type="text/javascript">
+        function goTo()
+            {
+                location.href = "stock/" + document.getElementById('ticker').value;
+            }
+    </script>
 </body>
 </html>

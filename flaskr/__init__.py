@@ -8,9 +8,6 @@ def create_app(test_config=None):
 
     @app.route('/')
     def index():
-        ticker = request.args.get('ticker')
-        if ticker:
-            return redirect(url_for('.print_opportunities', stock_name=ticker))
         return render_template("base.html")
 
     @app.route('/stock/<stock_name>')
