@@ -4,5 +4,23 @@ In particular, this program looks for situations where put-call parity does not 
 
 ## Usage ##
 1. Command Line: Run the main module of the package on an input .csv file containing comma separated names of the stocks to check opportunities for.
-2. Flask: In command line set up flask app as flaskr, run flask, and head to the url. There will be a search bar to input the name of a stock to check opportunities for.
+    `
+  
+        cd stonks
 
+        pip install -r requirements.txt
+
+        py src stock_names.csv
+    `
+2. Flask: In command line set up flask app as flaskr, run flask, and head to the url. There will be a search bar to input the name of a stock to check opportunities for.
+    `
+
+        cd stonks
+
+        pip install -r requirements.txt
+
+        export FLASK_APP=flaskr
+
+        flask run
+   
+    `
