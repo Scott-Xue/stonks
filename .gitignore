@@ -58,3 +58,6 @@ docs/_build/
 
 #virtual environment
 venv/
+
+# node modules
+node_modules
