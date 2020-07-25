@@ -32,5 +32,9 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000"
+  "proxy": "http://localhost:5000",
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint-plugin-vue": "^6.2.2"
+  }
 }

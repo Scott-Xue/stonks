@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import PropTypes from 'prop-types';
 
 export default class SearchBar extends Component {
@@ -7,9 +7,9 @@ export default class SearchBar extends Component {
         stockName: ''
     }
 
-    searchFor = (e) => {
+    searchFor = () => {
         this.props.findOpportunities(this.state.stockName);
-        this.setState({stockName: ''})
+        this.setState({stockName: ''});
     }
 
     updateStock = (e) => this.setState({[e.target.name]: e.target.value})
@@ -24,12 +24,11 @@ export default class SearchBar extends Component {
                     value = {this.state.stockName}
                     onChange = {this.updateStock}
                 ></input>
-                
             </div>
-        )
+        );
     }
 }
 
 SearchBar.propTypes = {
     findOpportunities: PropTypes.func.isRequired
-}
+};
