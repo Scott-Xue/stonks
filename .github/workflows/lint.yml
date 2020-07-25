@@ -5,7 +5,9 @@ on: [push]
 jobs:
   eslint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/client
     steps:
-      - run: cd src/client
       - uses: actions/checkout@v1
       - uses: stefanoeb/eslint-action@1.0.2
