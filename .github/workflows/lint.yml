@@ -2,12 +2,13 @@ name: JS Lint
 
 on: [push]
 
+defaults:
+      run:
+        working-directory: ./src/client
+
 jobs:
   eslint:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src/client
     steps:
       - uses: actions/checkout@v1
       - uses: stefanoeb/eslint-action@1.0.2
