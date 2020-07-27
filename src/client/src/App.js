@@ -9,7 +9,8 @@ class App extends Component {
       stockName: '',
       body: ''
   }
-  findOpportunities = (stockName) => {
+
+  setBody = (stockName) => {
       this.setState({
           stockName: stockName
       });
@@ -26,7 +27,7 @@ class App extends Component {
   render() {
       return (
           <div className="App">
-              <SearchBar findOpportunities={this.findOpportunities}/>
+              <SearchBar setBody={this.setBody}/>
               <h1> {this.state.stockName}</h1>
               <p>{this.state.body}</p>
           </div>

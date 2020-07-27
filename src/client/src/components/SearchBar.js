@@ -8,7 +8,7 @@ export default class SearchBar extends Component {
     }
 
     searchFor = () => {
-        this.props.findOpportunities(this.state.stockName);
+        this.props.setBody(this.state.stockName);
         this.setState({stockName: ''});
     }
 
@@ -30,5 +30,5 @@ export default class SearchBar extends Component {
 }
 
 SearchBar.propTypes = {
-    findOpportunities: PropTypes.func.isRequired
+    setBody: PropTypes.func.isRequired
 };

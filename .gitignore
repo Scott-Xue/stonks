@@ -61,6 +61,3 @@ venv/
 
 # node modules
 node_modules
-
-# javascript linter
-.eslintrc.yml
