@@ -1,4 +1,4 @@
-import {Component } from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
 import './App.css';
 import SearchBar from './components/SearchBar';
@@ -28,8 +28,10 @@ class App extends Component {
       return (
           <div className="App">
               <SearchBar setBody={this.setBody}/>
-              <h1> {this.state.stockName}</h1>
-              <p>{this.state.body}</p>
+              <div class='container'>
+                <h1> {this.state.stockName}</h1>
+                <p>{this.state.body}</p>
+              </div>
           </div>
       );
   }
