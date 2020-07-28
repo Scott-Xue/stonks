@@ -1,10 +1,12 @@
 from flask import Flask, render_template
+from flask_cors import CORS
 from src import arbitrage
 
 
 def create_app(test_config=None):
     # flask server
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app)
 
     @app.route('/')
     def index():
