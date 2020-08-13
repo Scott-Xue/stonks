@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 from flask_cors import CORS
 from src import arbitrage
 
@@ -15,6 +15,11 @@ def create_app(test_config=None):
     @app.route('/stock/<stock_name>')
     def print_opportunities(stock_name):
         q = arbitrage.Query(stock_names=[stock_name])
+        res = {}
         opportunities = q.find_opportunities()
-        return str(opportunities)
+        for opportunity in opportunities:
+            name, ops = opportunity
+            expiry_dict = dict(ops)
+            res[name] = expiry_dict
+        return jsonify(res)
     return app

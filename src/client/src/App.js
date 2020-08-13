@@ -7,7 +7,7 @@ import SearchBar from './components/SearchBar';
 class App extends Component {
   state = {
       stockName: '',
-      body: ''
+      body: 'Enter as stock name!'
   }
 
   setBody = (stockName) => {
@@ -15,10 +15,14 @@ class App extends Component {
           stockName: stockName
       });
       if(stockName !== '') {
+          this.setState({
+              body: 'Getting data for ' + stockName + '...'
+          });
           axios.get('http://127.0.0.1:5000/stock/' + stockName)
               .then((data) => {
+                  console.log(data);
                   this.setState({
-                      body: data['data']
+                      body: JSON.stringify(data['data'][stockName])
                   });
               });
       }
