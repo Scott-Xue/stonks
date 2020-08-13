@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import Button from 'react-bootstrap/Button';
+import FormControl from 'react-bootstrap/FormControl';
+import InputGroup from 'react-bootstrap/InputGroup';
 import PropTypes from 'prop-types';
 
 export default class SearchBar extends Component {
@@ -17,13 +20,16 @@ export default class SearchBar extends Component {
     render() {
         return (
             <div>
-                <button type="button" onClick={this.searchFor}>Search</button>
-                <input 
-                    type="text" 
-                    name="stockName"
-                    value = {this.state.stockName}
-                    onChange = {this.updateStock}
-                ></input>
+                <InputGroup>
+                    <Button type="button" onClick={this.searchFor}>Search</Button>
+                    <FormControl 
+                        placeholder="Enter stock name"
+                        type="text" 
+                        name="stockName"
+                        value = {this.state.stockName}
+                        onChange = {this.updateStock}
+                    ></FormControl>
+                </InputGroup>
             </div>
         );
     }
